@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  labels:
+    app: petstore
+  name: petstore
+  namespace: argocd
+spec:
+  generators:
+  - clusterDecisionResource:
+      # ConfigMap with GVK information for the duck type resource
+      configMapRef: placement
+      labelSelector:
+        matchLabels:
+          cluster.open-cluster-management.io/placement: petstore
+      requeueAfterSeconds: 60
+  template:
+    metadata:
+      labels:
+        app: petstore
+      name: '{{name}}-petstore'
+    spec:
+      project: default
+      source:
+        repoURL: git@github.com:Kuadrant/api-petstore.git
+        targetRevision: release
+        path: resources
+      destination:
+        name: '{{clusterName}}' # 'server' field of the secret
+        namespace: petstore
+      syncPolicy:
+        automated:
+          selfHeal: true
+        syncOptions:
+        - ApplyOutOfSyncOnly=true

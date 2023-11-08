@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: petstore-cluster-config
+  namespace: argocd
+spec:
+  generators:
+  - clusterDecisionResource:
+      configMapRef: placement
+      labelSelector:
+        matchLabels:
+          cluster.open-cluster-management.io/placement: petstore
+      requeueAfterSeconds: 60
+  template:
+    metadata:
+      name: '{{name}}-petstore-cluster-config'
+    spec:
+      project: default
+      source:
+        repoURL: git@github.com:Kuadrant/api-petstore.git
+        targetRevision: main
+        path: resources/{{name}}
+      destination:
+        name: '{{clusterName}}' # 'server' field of the secret
+        namespace: petstore
+      syncPolicy:
+        automated:
+          selfHeal: true
+        syncOptions:
+        - ApplyOutOfSyncOnly=true
+        - CreateNamespace=true

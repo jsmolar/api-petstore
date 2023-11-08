@@ -1,0 +1,34 @@
+name: ci
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+permissions:
+  contents: write
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install YQ
+        uses: dcarbone/install-yq-action@v1.1.1
+      - name: Install kuadrantctl
+        uses: jaxxstorm/action-install-gh-release@v1.10.0
+        with: # Grab the latest version
+          repo: Kuadrant/kuadrantctl
+          tag: v0.2.0
+          cache: enable
+      - run: kuadrantctl version
+      - run: kuadrantctl generate kuadrant ratelimitpolicy --oas openapi.yaml | yq -P > resources/ratelimitpolicy.yaml
+      - run: kuadrantctl generate gatewayapi httproute --oas openapi.yaml | yq -P > resources/httproute.yaml
+      - run: kuadrantctl generate kuadrant authpolicy --oas openapi.yaml  | yq -P > resources/authpolicy.yaml
+      - name: Update resources
+        uses: test-room-7/action-update-file@v1
+        with:
+          file-path: |
+            resources/ratelimitpolicy.yaml
+            resources/httproute.yaml
+          commit-msg: Update resources
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          branch: release
