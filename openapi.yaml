@@ -32,7 +32,7 @@ info:
         namespace: kuadrant-multi-cluster-gateways
         kind: Gateway
 servers:
-- url: /api/v3
+- url: https://petstore.aws.kua.3scale.app-services-dev.net/api/v3/
 paths:
   /pet/findByStatus:
     get:
