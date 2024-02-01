@@ -1,0 +1,38 @@
+kind: AuthPolicy
+apiVersion: kuadrant.io/v1beta2
+metadata:
+  name: petstore
+  namespace: petstore
+  creationTimestamp: null
+  labels:
+    deployment: petstore
+    owner: jbloggs
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: petstore
+    namespace: petstore
+  routeSelectors:
+    - matches:
+        - path:
+            type: Exact
+            value: /api/v3/store/admin
+          method: GET
+  rules:
+    authentication:
+      storeAdmin_api_key:
+        credentials:
+          customHeader:
+            name: api_key
+        apiKey:
+          selector:
+            matchLabels:
+              kuadrant.io/apikeys-by: api_key
+        routeSelectors:
+          - matches:
+              - path:
+                  type: Exact
+                  value: /api/v3/store/admin
+                method: GET
+status: {}
