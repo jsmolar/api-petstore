@@ -141,7 +141,7 @@ paths:
           port: 8080
         rate_limit:
           rates:
-          - limit: 10
+          - limit: 2
             duration: 10
             unit: second
   /store/admin:

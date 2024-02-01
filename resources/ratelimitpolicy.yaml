@@ -22,7 +22,7 @@ spec:
                 value: /api/v3/store/inventory
               method: GET
       rates:
-        - limit: 10
+        - limit: 2
           duration: 10
           unit: second
     loginUser:
