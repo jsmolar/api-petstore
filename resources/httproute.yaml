@@ -3,14 +3,44 @@ apiVersion: gateway.networking.k8s.io/v1beta1
 metadata:
   name: petstore
   namespace: petstore
+  creationTimestamp: null
   labels:
     deployment: petstore
     owner: jbloggs
 spec:
-  hostnames:
-    - petstore.$KUADRANT_ZONE_ROOT_DOMAIN
   parentRefs:
     - kind: Gateway
-      name: prod-web
       namespace: kuadrant-multi-cluster-gateways
-  rules: []
+      name: prod-web
+  hostnames:
+    - petstore.${KUADRANT_ZONE_ROOT_DOMAIN}
+  rules:
+    - matches:
+        - path:
+            type: Exact
+            value: /api/v3/store/admin
+          method: GET
+      backendRefs:
+        - name: petstore
+          namespace: petstore
+          port: 8080
+    - matches:
+        - path:
+            type: Exact
+            value: /api/v3/store/inventory
+          method: GET
+      backendRefs:
+        - name: petstore
+          namespace: petstore
+          port: 8080
+    - matches:
+        - path:
+            type: Exact
+            value: /api/v3/user/login
+          method: GET
+      backendRefs:
+        - name: petstore
+          namespace: petstore
+          port: 8080
+status:
+  parents: null
